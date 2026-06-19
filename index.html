@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image Compressr — Shrink photos on your device</title>
+<meta name="description" content="Image Compressr compresses and resizes photos entirely on your Android device — no uploads, fully offline. Preset-based compression for exam forms, passport photos, WhatsApp, email and more.">
+<style>
+  :root {
+    --teal: #0E7C7B;
+    --teal-light: #15938F;
+    --teal-dark: #0A5F5E;
+    --ink: #1c1b1a;
+    --muted: #6b6560;
+    --bg: #fff;
+    --surface: #fbf6f3;
+    --surface-2: #f4ece7;
+    --radius: 16px;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #ece7e3; --muted: #a59d97; --bg: #161312;
+      --surface: #1f1a18; --surface-2: #261f1c;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--teal); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: saturate(160%) blur(10px);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; font-size: 1.15rem; }
+  .brand .logo { width: 36px; height: 36px; border-radius: 9px; }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: var(--muted); font-weight: 500; font-size: 0.95rem; }
+  .nav-links a:hover { color: var(--ink); text-decoration: none; }
+  @media (max-width: 640px) { .nav-links { display: none; } }
+
+  /* Hero */
+  .hero { text-align: center; padding: 4.5rem 0 3.5rem; }
+  .hero .logo-lg { width: 92px; height: 92px; border-radius: 22px; margin: 0 auto 1.5rem;
+    box-shadow: 0 12px 40px color-mix(in srgb, var(--teal) 35%, transparent); }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.1; margin: 0 0 1rem; letter-spacing: -0.02em; }
+  .hero h1 .accent { color: var(--teal); }
+  .hero p.lead { font-size: clamp(1.05rem, 2.2vw, 1.3rem); color: var(--muted); max-width: 620px; margin: 0 auto 2rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: var(--surface-2); color: var(--ink);
+    padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.9rem; font-weight: 500;
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+
+  /* Section scaffolding */
+  section { padding: 3.5rem 0; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 2.5rem; }
+  .section-head h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); margin: 0 0 0.6rem; letter-spacing: -0.01em; }
+  .section-head p { color: var(--muted); font-size: 1.05rem; margin: 0; }
+  .eyebrow { color: var(--teal); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Feature grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem; }
+  .card {
+    background: var(--surface); border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+    border-radius: var(--radius); padding: 1.5rem;
+  }
+  .card .ic {
+    width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--teal) 14%, transparent); color: var(--teal); margin-bottom: 1rem;
+  }
+  .card h3 { margin: 0 0 0.4rem; font-size: 1.15rem; }
+  .card p { margin: 0; color: var(--muted); font-size: 0.97rem; }
+
+  /* Presets */
+  .presets { background: var(--surface); border-radius: 28px; padding: 2.75rem 1.5rem; }
+  .preset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.8rem; max-width: 860px; margin: 0 auto; }
+  .preset {
+    display: flex; align-items: center; gap: 0.75rem; background: var(--bg);
+    border: 1px solid color-mix(in srgb, var(--ink) 8%, transparent);
+    border-radius: 14px; padding: 0.9rem 1rem;
+  }
+  .preset .pic { font-size: 1.3rem; line-height: 1; }
+  .preset b { display: block; font-size: 0.97rem; }
+  .preset span { font-size: 0.82rem; color: var(--muted); }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; counter-reset: step; }
+  .step { position: relative; padding-top: 0.5rem; }
+  .step .num {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--teal); color: #fff;
+    display: grid; place-items: center; font-weight: 700; margin-bottom: 0.8rem;
+  }
+  .step h3 { margin: 0 0 0.3rem; font-size: 1.1rem; }
+  .step p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  /* Privacy banner */
+  .privacy {
+    background: linear-gradient(135deg, var(--teal-light), var(--teal) 55%, var(--teal-dark));
+    color: #fff; border-radius: 28px; padding: 3rem 2rem; text-align: center;
+  }
+  .privacy h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); margin: 0 0 0.75rem; }
+  .privacy p { max-width: 620px; margin: 0 auto; opacity: 0.95; font-size: 1.08rem; }
+  .privacy .pill { background: rgba(255,255,255,0.18); color: #fff; margin-top: 1.5rem; }
+  .privacy .pill .dot { background: #fff; }
+
+  /* Footer */
+  footer { border-top: 1px solid color-mix(in srgb, var(--ink) 10%, transparent); padding: 2.5rem 0; margin-top: 1rem; }
+  .foot { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; }
+  .foot .brand { font-size: 1rem; }
+  .foot-links { display: flex; gap: 1.5rem; }
+  .foot small { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ===== Reusable logo (inline SVG) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="logoBg" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#15938F"/><stop offset="0.55" stop-color="#0E7C7B"/><stop offset="1" stop-color="#0A5F5E"/>
+    </linearGradient>
+    <symbol id="logo" viewBox="0 0 108 108">
+      <rect width="108" height="108" rx="24" fill="url(#logoBg)"/>
+      <rect x="38" y="42" width="32" height="28" rx="5" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="48" cy="51" r="3.4" fill="#fff"/>
+      <path d="M41,66 L51,54 L56,60 L61,53 L67,66 Z" fill="#fff"/>
+      <path d="M45,30 L54,39 L63,30" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M45,82 L54,73 L63,82" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><svg class="logo"><use href="#logo"/></svg> Image Compressr</div>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#presets">Presets</a>
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <svg class="logo-lg"><use href="#logo"/></svg>
+      <h1>Shrink photos, <span class="accent">right on your phone</span></h1>
+      <p class="lead">
+        Image Compressr compresses and resizes your images entirely on your device —
+        nothing is uploaded, and it works fully offline. Pick a goal, and it handles the rest.
+      </p>
+      <div class="badges">
+        <span class="pill"><span class="dot"></span> 100% on-device</span>
+        <span class="pill"><span class="dot"></span> Works offline</span>
+        <span class="pill"><span class="dot"></span> No sign-up</span>
+        <span class="pill"><span class="dot"></span> Free</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Everything you need</span>
+        <h2>Powerful, but refreshingly simple</h2>
+        <p>Three ways to compress, batch support, and a live preview of the result — without the clutter.</p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <div class="ic">⚡</div>
+          <h3>Quick compress</h3>
+          <p>Tap Low, Medium, or High — or fine-tune the quality slider. See the estimated file size update live before you commit.</p>
+        </div>
+        <div class="card">
+          <div class="ic">🎯</div>
+          <h3>Compress to a target size</h3>
+          <p>Need it under 50&nbsp;KB or 2&nbsp;MB? Type the size you want and the app finds the best quality that fits.</p>
+        </div>
+        <div class="card">
+          <div class="ic">📐</div>
+          <h3>Manual control</h3>
+          <p>Set exact width and height with optional aspect-ratio lock, choose the format, and dial in quality yourself.</p>
+        </div>
+        <div class="card">
+          <div class="ic">🗂️</div>
+          <h3>Batch processing</h3>
+          <p>Select many photos and compress them all in one go, with per-image results and total space saved.</p>
+        </div>
+        <div class="card">
+          <div class="ic">🔍</div>
+          <h3>Before / after compare</h3>
+          <p>A draggable slider shows original vs. compressed side by side, so you always know exactly what you’re saving.</p>
+        </div>
+        <div class="card">
+          <div class="ic">🖼️</div>
+          <h3>JPEG, PNG &amp; WebP</h3>
+          <p>Convert between formats, including modern WebP, and read HEIC photos. Strip metadata to save even more.</p>
+        </div>
+        <div class="card">
+          <div class="ic">💾</div>
+          <h3>Save your way</h3>
+          <p>Send results to your gallery or any folder you choose, and share to any app in a single tap.</p>
+        </div>
+        <div class="card">
+          <div class="ic">🔖</div>
+          <h3>Save custom presets</h3>
+          <p>Found a setting you reuse? Save it as your own preset and apply it instantly next time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Presets -->
+  <section id="presets">
+    <div class="wrap">
+      <div class="presets">
+        <div class="section-head">
+          <span class="eyebrow">The differentiator</span>
+          <h2>Presets do the math for you</h2>
+          <p>Stop guessing dimensions and file sizes. Pick what the photo is <em>for</em>, and Image Compressr sets the right size and quality — you can still fine-tune before saving.</p>
+        </div>
+        <div class="preset-grid">
+          <div class="preset"><span class="pic">📝</span><div><b>Exam form photo</b><span>~50&nbsp;KB · 200×230&nbsp;px</span></div></div>
+          <div class="preset"><span class="pic">✍️</span><div><b>Exam signature</b><span>Small ~20&nbsp;KB</span></div></div>
+          <div class="preset"><span class="pic">🪪</span><div><b>Passport photo</b><span>413×531&nbsp;px · 300&nbsp;DPI</span></div></div>
+          <div class="preset"><span class="pic">💬</span><div><b>WhatsApp DP</b><span>Square 640×640</span></div></div>
+          <div class="preset"><span class="pic">📨</span><div><b>Discord (≤10&nbsp;MB)</b><span>Fits free upload limit</span></div></div>
+          <div class="preset"><span class="pic">📸</span><div><b>Instagram</b><span>1080&nbsp;px wide</span></div></div>
+          <div class="preset"><span class="pic">✉️</span><div><b>Email attachment</b><span>Around 1&nbsp;MB</span></div></div>
+          <div class="preset"><span class="pic">⭐</span><div><b>Your own presets</b><span>Save &amp; reuse</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Three taps</span>
+        <h2>How it works</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Pick photos</h3>
+          <p>Choose one or many images with the Android photo picker. The app only ever sees what you select.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Choose a goal</h3>
+          <p>Tap a preset, or set a quality, target size, or exact dimensions. Watch the estimated size update live.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>Save or share</h3>
+          <p>Compress, compare before and after, then save to your gallery or share — all without leaving the app.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Privacy -->
+  <section id="privacy">
+    <div class="wrap">
+      <div class="privacy">
+        <h2>Your photos never leave your device</h2>
+        <p>
+          All compression happens locally on your phone. Image Compressr doesn’t upload your images,
+          doesn’t require an account, and its core features work with no internet connection at all.
+          The only network use is for ads and the related consent prompt.
+        </p>
+        <span class="pill"><span class="dot"></span> Private by design</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand"><svg class="logo" style="width:28px;height:28px"><use href="#logo"/></svg> Image Compressr</div>
+    <div class="foot-links">
+      <a href="#features">Features</a>
+      <a href="privacy-policy.html">Privacy Policy</a>
+    </div>
+    <small>© 2026 Image Compressr</small>
+  </div>
+</footer>
+
+</body>
+</html>
